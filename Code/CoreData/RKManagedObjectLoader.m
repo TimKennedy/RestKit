@@ -37,6 +37,8 @@
 
 @synthesize objectStore = _objectStore;
 
+@synthesize shouldDeleteMissingObjects;
+
 + (id)loaderWithURL:(RKURL *)URL mappingProvider:(RKObjectMappingProvider *)mappingProvider objectStore:(RKManagedObjectStore *)objectStore {
     return [[[self alloc] initWithURL:URL mappingProvider:mappingProvider objectStore:objectStore] autorelease];
 }
@@ -45,6 +47,7 @@
     self = [self initWithURL:URL mappingProvider:mappingProvider];
     if (self) {
         _objectStore = [objectStore retain];
+        shouldDeleteMissingObjects = YES;
     }
 
     return self;
@@ -160,7 +163,7 @@
 
     // If the response was successful, save the store...
     if ([self.response isSuccessful]) {
-        [self deleteCachedObjectsMissingFromResult:result];
+        if (shouldDeleteMissingObjects) [self deleteCachedObjectsMissingFromResult:result];
         NSError *error = nil;
         BOOL success = [self.objectStore save:&error];
         if (! success) {
